@@ -156,6 +156,11 @@
             color: #2c5a7a;
         }
 
+        .action-buttons-group {
+            display: flex;
+            gap: 8px;
+        }
+
         .clear-completed {
             background: none;
             border: none;
@@ -172,6 +177,24 @@
         .clear-completed:hover {
             background: #ffe2e6;
             color: #bc3f53;
+        }
+
+        .reset-btn {
+            background: none;
+            border: none;
+            font-size: 0.8rem;
+            color: #5e5c7c;
+            font-weight: 500;
+            cursor: pointer;
+            padding: 6px 14px;
+            border-radius: 40px;
+            transition: all 0.2s;
+            background: #f0eef9;
+        }
+
+        .reset-btn:hover {
+            background: #e5e2f0;
+            color: #3c3a5c;
         }
 
         /* 任务列表区域 */
@@ -256,7 +279,7 @@
             flex-shrink: 0;
         }
 
-        /* 通用按钮样式 */
+        /* 按钮样式 */
         .edit-btn, .delete-btn {
             background: transparent;
             border: none;
@@ -337,6 +360,9 @@
             .stats-bar {
                 padding: 12px 20px;
             }
+            .action-buttons-group {
+                gap: 6px;
+            }
         }
     </style>
 </head>
@@ -349,14 +375,17 @@
 
     <div class="input-section">
         <div class="input-group">
-            <input type="text" id="todoInput" placeholder="写一个代办事项，例如：购买书籍、整理报告..." autocomplete="off">
+            <input type="text" id="todoInput" placeholder="写一个待办事项，例如：购买书籍、整理报告..." autocomplete="off">
             <button class="add-btn" id="addTodoBtn">➕ 添加</button>
         </div>
     </div>
 
     <div class="stats-bar">
         <div class="counter" id="taskCounter">📋 0 项待办</div>
-        <button class="clear-completed" id="clearCompletedBtn">✔️ 清除已完成</button>
+        <div class="action-buttons-group">
+            <button class="clear-completed" id="clearCompletedBtn">✔️ 清除已完成</button>
+            <button class="reset-btn" id="resetBtn">🔄 初始化</button>
+        </div>
     </div>
 
     <div class="todo-list-container">
@@ -383,6 +412,7 @@
     const todoListContainer = document.getElementById('todoList');
     const taskCounterSpan = document.getElementById('taskCounter');
     const clearCompletedBtn = document.getElementById('clearCompletedBtn');
+    const resetBtn = document.getElementById('resetBtn');
 
     // 存储相关的 KEY
     const STORAGE_KEY = 'local_todo_app_list';
@@ -409,20 +439,26 @@
                 todos = [];
             }
         } else {
-            // 初始化两条示例演示数据 (更友好，也可空)
-            todos = [
-                { id: Date.now() + 1, text: '点击 ✔️ 标记完成', completed: false },
-                { id: Date.now() + 2, text: '点击 ✏️ 编辑内容', completed: false },
-                { id: Date.now() + 3, text: '点击 🗑️ 删除事项', completed: true }
-            ];
+            // 初始化示例演示数据
+            todos = getDefaultTodos();
         }
-        // 避免id重复的附加保序操作 (不会有重复但预防)
+        // 避免id重复的附加保序操作
         const idSet = new Set();
         todos = todos.filter(t => {
             if (idSet.has(t.id)) return false;
             idSet.add(t.id);
             return true;
         });
+    }
+
+    // 获取默认示例数据
+    function getDefaultTodos() {
+        const now = Date.now();
+        return [
+            { id: now + 1, text: '点击 ✔️ 标记完成', completed: false },
+            { id: now + 2, text: '双击事项或点击 ✏️ 编辑内容', completed: false },
+            { id: now + 3, text: '点击 🗑️ 删除事项', completed: true }
+        ];
     }
 
     // 保存至本地存储
@@ -441,13 +477,11 @@
         }
     }
 
-    // 核心渲染函数 —— 基于 todos 数据完全刷新列表 (安全，无XSS，纯dom操作)
+    // 核心渲染函数 —— 基于 todos 数据完全刷新列表
     function renderTodoList() {
-        // 清空容器，保留占位状态会动态判断
         todoListContainer.innerHTML = '';
 
         if (todos.length === 0) {
-            // 显示空状态
             const emptyLi = document.createElement('li');
             emptyLi.className = 'empty-placeholder';
             emptyLi.innerHTML = '<span>✅</span> 所有任务都完成啦！<br>添加新的事项继续努力';
@@ -456,27 +490,21 @@
             return;
         }
 
-        // 按时间倒序? 新添加的显示在上方更符合直觉 (让最新添加靠前)
-        // 为了更好的用户习惯，让未完成的靠前，也可以根据 id 倒序。这里采用未完成在上方, 内部按id降序(新的靠前)
+        // 排序：未完成的在上，同状态下新添加的靠前
         const sortedTodos = [...todos].sort((a, b) => {
-            // 未完成的排在前面
             if (a.completed !== b.completed) {
                 return a.completed ? 1 : -1;
             }
-            // 同状态下新的在前（id大的通常更新）
             return b.id - a.id;
         });
 
-        // 使用文档片段提高性能
         const fragment = document.createDocumentFragment();
-
         sortedTodos.forEach(todo => {
             const li = document.createElement('li');
             li.className = 'todo-item';
             if (todo.completed) {
                 li.classList.add('completed');
             }
-            // 自定义属性存储 id 方便事件委托定位
             li.setAttribute('data-todo-id', todo.id);
 
             // 复选框
@@ -489,21 +517,19 @@
             // 文本容器
             const textSpan = document.createElement('span');
             textSpan.className = 'todo-text';
-            textSpan.textContent = todo.text;  // 安全文本，防XSS
+            textSpan.textContent = todo.text;
             textSpan.setAttribute('data-id', todo.id);
 
             // 操作按钮组
             const actionDiv = document.createElement('div');
             actionDiv.className = 'action-buttons';
 
-            // 编辑按钮(✏️)
             const editBtn = document.createElement('button');
             editBtn.className = 'edit-btn';
             editBtn.innerHTML = '✏️';
             editBtn.setAttribute('data-id', todo.id);
             editBtn.title = '编辑事项';
 
-            // 删除按钮(🗑️)
             const deleteBtn = document.createElement('button');
             deleteBtn.className = 'delete-btn';
             deleteBtn.innerHTML = '🗑️';
@@ -516,7 +542,6 @@
             li.appendChild(checkbox);
             li.appendChild(textSpan);
             li.appendChild(actionDiv);
-
             fragment.appendChild(li);
         });
 
@@ -524,11 +549,10 @@
         updateStats();
     }
 
-    // 辅助函数：添加新待办
+    // 添加新待办
     function addNewTodo() {
         let rawText = todoInput.value;
         if (!rawText || rawText.trim() === '') {
-            // 轻提示样式（非侵入式）
             const originalPlaceholder = todoInput.placeholder;
             todoInput.placeholder = '⚠️ 请输入待办内容！';
             todoInput.style.backgroundColor = '#fff5f5';
@@ -540,7 +564,6 @@
         }
 
         const text = rawText.trim();
-        // 避免重复内容过多无限制，但无需限制
         const newTodo = {
             id: Date.now(),
             text: text,
@@ -549,14 +572,13 @@
         todos.push(newTodo);
         saveTodosToStorage();
         renderTodoList();
-        // 清空输入框并保持焦点
         todoInput.value = '';
         todoInput.focus();
     }
 
-    // 切换完成状态 (通过 id)
+    // 切换完成状态
     function toggleComplete(todoId) {
-        const todo = todos.find(t => t.id == todoId);  // 弱比较支持字符串数字
+        const todo = todos.find(t => t.id == todoId);
         if (todo) {
             todo.completed = !todo.completed;
             saveTodosToStorage();
@@ -573,17 +595,15 @@
         renderTodoList();
     }
 
-    // 编辑待办 (通过id, 弹出简洁修改框)
+    // 编辑待办
     function editTodoById(todoId) {
         const todo = todos.find(t => t.id == todoId);
         if (!todo) return;
 
-        // 弹出修改窗口，现代且友好
         let newText = prompt('编辑待办事项', todo.text);
         if (newText !== null) {
             const trimmed = newText.trim();
             if (trimmed === '') {
-                // 如果用户清空内容，提示后不做修改
                 alert('事项内容不能为空，修改未生效');
                 return;
             }
@@ -597,7 +617,6 @@
     function clearCompletedTasks() {
         const hasCompleted = todos.some(t => t.completed === true);
         if (!hasCompleted) {
-            // 没有已完成的任务，简单提示（可忽略）
             const msgHint = document.createElement('div');
             msgHint.textContent = '✨ 当前没有已完成的任务';
             msgHint.style.position = 'fixed';
@@ -620,9 +639,25 @@
         renderTodoList();
     }
 
-    // 全局事件委托 (监听 ul 上的交互与动态生成的子元素)
+    // ---------- 初始化功能：重置为默认示例数据 ----------
+    function resetToInitial() {
+        const confirmReset = confirm('⚠️ 初始化将删除当前所有待办事项，并恢复为示例数据。\n确定要继续吗？');
+        if (!confirmReset) return;
+
+        todos = getDefaultTodos();
+        // 确保 ID 不重复且是最新的时间戳，避免冲突
+        const now = Date.now();
+        todos = todos.map((todo, idx) => ({
+            ...todo,
+            id: now + idx + 1
+        }));
+        saveTodosToStorage();
+        renderTodoList();
+        todoInput.focus();
+    }
+
+    // 全局事件委托
     function attachDelegation() {
-        // 事件: 复选框改变 (change)
         todoListContainer.addEventListener('change', (e) => {
             const target = e.target;
             if (target.classList && target.classList.contains('todo-checkbox')) {
@@ -634,10 +669,8 @@
             }
         });
 
-        // 事件: 点击编辑按钮或者删除按钮 (click 委托)
         todoListContainer.addEventListener('click', (e) => {
             const target = e.target;
-            // 编辑按钮
             if (target.classList && target.classList.contains('edit-btn')) {
                 const id = target.getAttribute('data-id');
                 if (id) {
@@ -646,7 +679,6 @@
                     editTodoById(id);
                 }
             }
-            // 删除按钮
             else if (target.classList && target.classList.contains('delete-btn')) {
                 const id = target.getAttribute('data-id');
                 if (id) {
@@ -657,10 +689,8 @@
             }
         });
 
-        // 防止双击文本意外触发其他，但不需要额外逻辑 (已经全面支持按钮操作)
-        // 可选：也为文本区域增加双击编辑的快捷操作? 尽管已经有编辑按钮，但为了顺手，加双击待办文本编辑
+        // 双击待办文本快速编辑
         todoListContainer.addEventListener('dblclick', (e) => {
-            // 双击到 .todo-text 或者它内部（span区域）
             let textSpan = e.target.closest('.todo-text');
             if (textSpan && textSpan.classList.contains('todo-text')) {
                 const id = textSpan.getAttribute('data-id');
@@ -670,7 +700,6 @@
                     editTodoById(id);
                 }
             } else {
-                // 如果双击空白区域不做任何处理，保持优雅
                 const itemLi = e.target.closest('.todo-item');
                 if (itemLi && !e.target.closest('.edit-btn') && !e.target.closest('.delete-btn')) {
                     const id = itemLi.getAttribute('data-todo-id');
@@ -680,7 +709,7 @@
         });
     }
 
-    // 监听回车添加事宜
+    // 回车添加
     function bindEnterKey() {
         todoInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
@@ -690,25 +719,25 @@
         });
     }
 
-    // 添加按钮点击事件
-    addBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        addNewTodo();
-    });
-
-    // 清除已完成
-    clearCompletedBtn.addEventListener('click', () => {
-        clearCompletedTasks();
-    });
-
-    // 页面初始化
+    // 初始化应用
     function initApp() {
         loadTodosFromStorage();
         renderTodoList();
         attachDelegation();
         bindEnterKey();
-        // 自动聚焦输入框
         todoInput.focus();
+    }
+
+    // 绑定按钮事件
+    addBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        addNewTodo();
+    });
+    clearCompletedBtn.addEventListener('click', () => {
+        clearCompletedTasks();
+    });
+    if (resetBtn) {
+        resetBtn.addEventListener('click', resetToInitial);
     }
 
     // 启动应用
