@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>本地待办事项工具 | 清爽的任务管理</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(145deg, #f0f4fa 0%, #e6edf4 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* 主卡片容器 */
+        .todo-app {
+            max-width: 700px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(0px);
+            border-radius: 36px;
+            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.2), 0 1px 3px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            transition: all 0.2s ease;
+        }
+
+        /* 头部装饰 */
+        .app-header {
+            background: #ffffff;
+            padding: 28px 28px 16px 28px;
+            border-bottom: 1px solid #eef2f8;
+        }
+
+        .app-header h1 {
+            font-size: 1.85rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #1e2b3c, #2c4e6e);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            letter-spacing: -0.3px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .app-header h1::before {
+            content: "✓✓";
+            font-size: 1.7rem;
+            background: none;
+            color: #2c7da0;
+            background-clip: unset;
+            -webkit-background-clip: unset;
+        }
+
+        .sub {
+            color: #5b6e8c;
+            font-size: 0.85rem;
+            margin-top: 8px;
+            font-weight: 400;
+            border-left: 3px solid #7f8fa6;
+            padding-left: 12px;
+        }
+
+        /* 输入区块 */
+        .input-section {
+            padding: 20px 28px 12px 28px;
+            background: #ffffff;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            background: #f8fafd;
+            border-radius: 60px;
+            padding: 4px 4px 4px 20px;
+            border: 1px solid #e2e9f2;
+            transition: all 0.2s;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+        }
+
+        .input-group:focus-within {
+            border-color: #7f9fbf;
+            box-shadow: 0 0 0 3px rgba(44, 78, 110, 0.1);
+            background: #ffffff;
+        }
+
+        #todoInput {
+            flex: 1;
+            border: none;
+            background: transparent;
+            padding: 14px 0;
+            font-size: 1rem;
+            outline: none;
+            color: #1a2c3e;
+            font-weight: 500;
+        }
+
+        #todoInput::placeholder {
+            color: #9aafc9;
+            font-weight: 400;
+        }
+
+        .add-btn {
+            background: #2c7da0;
+            border: none;
+            color: white;
+            font-weight: 600;
+            padding: 10px 28px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            letter-spacing: 0.5px;
+        }
+
+        .add-btn:hover {
+            background: #1f5e7a;
+            transform: scale(0.97);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .add-btn:active {
+            background: #144a60;
+        }
+
+        /* 统计栏 */
+        .stats-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            padding: 12px 28px 8px 28px;
+            background: #ffffff;
+            border-bottom: 1px solid #edf2f7;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .counter {
+            background: #eef3fc;
+            padding: 6px 14px;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #2c5a7a;
+        }
+
+        .clear-completed {
+            background: none;
+            border: none;
+            font-size: 0.8rem;
+            color: #d45a6e;
+            font-weight: 500;
+            cursor: pointer;
+            padding: 6px 14px;
+            border-radius: 40px;
+            transition: all 0.2s;
+            background: #fff5f6;
+        }
+
+        .clear-completed:hover {
+            background: #ffe2e6;
+            color: #bc3f53;
+        }
+
+        /* 任务列表区域 */
+        .todo-list-container {
+            padding: 6px 16px 24px 16px;
+            background: #ffffff;
+        }
+
+        .todo-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 480px;
+            overflow-y: auto;
+            padding-right: 8px;
+        }
+
+        /* 自定义滚动条 */
+        .todo-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .todo-list::-webkit-scrollbar-track {
+            background: #eef2f8;
+            border-radius: 8px;
+        }
+
+        .todo-list::-webkit-scrollbar-thumb {
+            background: #bdd4e8;
+            border-radius: 8px;
+        }
+
+        /* 单个待办卡片 */
+        .todo-item {
+            background: #fefefe;
+            border-radius: 24px;
+            padding: 12px 18px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            transition: all 0.2s;
+            border: 1px solid #eef2fa;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+        }
+
+        .todo-item:hover {
+            background: #fbfdff;
+            border-color: #dce5f0;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
+        }
+
+        /* 复选框自定义样式 */
+        .todo-checkbox {
+            width: 22px;
+            height: 22px;
+            cursor: pointer;
+            accent-color: #2c7da0;
+            flex-shrink: 0;
+        }
+
+        .todo-text {
+            flex: 1;
+            font-size: 1rem;
+            font-weight: 500;
+            color: #1f3b4c;
+            word-break: break-word;
+            padding: 4px 0;
+            transition: 0.1s;
+        }
+
+        /* 完成的事项样式 */
+        .completed .todo-text {
+            text-decoration: line-through;
+            color: #91a9c2;
+            font-weight: 400;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        /* 通用按钮样式 */
+        .edit-btn, .delete-btn {
+            background: transparent;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 6px 8px;
+            border-radius: 30px;
+            transition: all 0.15s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 34px;
+            font-weight: 500;
+        }
+
+        .edit-btn {
+            color: #5c8db0;
+        }
+
+        .edit-btn:hover {
+            background: #e9f0f8;
+            color: #2c6e96;
+            transform: scale(1.03);
+        }
+
+        .delete-btn {
+            color: #c97b8a;
+        }
+
+        .delete-btn:hover {
+            background: #fee9ec;
+            color: #c24a5e;
+            transform: scale(1.03);
+        }
+
+        /* 空状态占位 */
+        .empty-placeholder {
+            text-align: center;
+            padding: 48px 20px;
+            color: #a6bbd4;
+            font-size: 0.9rem;
+            background: #fafcff;
+            border-radius: 40px;
+            margin-top: 8px;
+            border: 1px dashed #dae6f2;
+        }
+
+        .empty-placeholder span {
+            font-size: 2.2rem;
+            opacity: 0.6;
+            display: block;
+            margin-bottom: 12px;
+        }
+
+        footer {
+            background: #fafcff;
+            padding: 14px 28px;
+            text-align: center;
+            font-size: 0.7rem;
+            color: #8ca3bc;
+            border-top: 1px solid #eef3fc;
+        }
+
+        @media (max-width: 500px) {
+            .input-group {
+                padding-left: 16px;
+            }
+            .add-btn {
+                padding: 10px 20px;
+            }
+            .todo-item {
+                padding: 10px 14px;
+                gap: 10px;
+            }
+            .todo-text {
+                font-size: 0.9rem;
+            }
+            .stats-bar {
+                padding: 12px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="todo-app">
+    <div class="app-header">
+        <h1>代办事宜</h1>
+        <div class="sub">记录 · 专注 · 完成</div>
+    </div>
+
+    <div class="input-section">
+        <div class="input-group">
+            <input type="text" id="todoInput" placeholder="写一个代办事项，例如：购买书籍、整理报告..." autocomplete="off">
+            <button class="add-btn" id="addTodoBtn">➕ 添加</button>
+        </div>
+    </div>
+
+    <div class="stats-bar">
+        <div class="counter" id="taskCounter">📋 0 项待办</div>
+        <button class="clear-completed" id="clearCompletedBtn">✔️ 清除已完成</button>
+    </div>
+
+    <div class="todo-list-container">
+        <ul class="todo-list" id="todoList">
+            <!-- 动态渲染待办列表 -->
+            <li class="empty-placeholder">
+                <span>📌</span> 暂无待办事项<br>输入内容，点击添加开始规划
+            </li>
+        </ul>
+    </div>
+    <footer>
+        💾 数据自动保存在本地 — 关闭页面后依然保留
+    </footer>
+</div>
+
+<script>
+    // ---------- 待办应用核心 ----------
+    // 数据模型: { id: 唯一标识, text: 内容, completed: 布尔 }
+    let todos = [];
+
+    // DOM 元素
+    const todoInput = document.getElementById('todoInput');
+    const addBtn = document.getElementById('addTodoBtn');
+    const todoListContainer = document.getElementById('todoList');
+    const taskCounterSpan = document.getElementById('taskCounter');
+    const clearCompletedBtn = document.getElementById('clearCompletedBtn');
+
+    // 存储相关的 KEY
+    const STORAGE_KEY = 'local_todo_app_list';
+
+    // 辅助函数：加载本地存储数据
+    function loadTodosFromStorage() {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) {
+            try {
+                const parsed = JSON.parse(stored);
+                if (Array.isArray(parsed)) {
+                    todos = parsed;
+                    // 保障每个任务都有 id, text, completed 字段，避免脏数据
+                    todos = todos.filter(item => item && typeof item === 'object')
+                                 .map(item => ({
+                                     id: item.id || Date.now() + Math.random(),
+                                     text: item.text || '未命名事项',
+                                     completed: item.completed === true
+                                 }));
+                } else {
+                    todos = [];
+                }
+            } catch(e) {
+                todos = [];
+            }
+        } else {
+            // 初始化两条示例演示数据 (更友好，也可空)
+            todos = [
+                { id: Date.now() + 1, text: '点击 ✔️ 标记完成', completed: false },
+                { id: Date.now() + 2, text: '点击 ✏️ 编辑内容', completed: false },
+                { id: Date.now() + 3, text: '点击 🗑️ 删除事项', completed: true }
+            ];
+        }
+        // 避免id重复的附加保序操作 (不会有重复但预防)
+        const idSet = new Set();
+        todos = todos.filter(t => {
+            if (idSet.has(t.id)) return false;
+            idSet.add(t.id);
+            return true;
+        });
+    }
+
+    // 保存至本地存储
+    function saveTodosToStorage() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(todos));
+    }
+
+    // 更新界面统计: 未完成任务数量
+    function updateStats() {
+        const activeCount = todos.filter(todo => !todo.completed).length;
+        const totalCount = todos.length;
+        if (totalCount === 0) {
+            taskCounterSpan.innerHTML = `📋 没有待办事项`;
+        } else {
+            taskCounterSpan.innerHTML = `📋 待办 ${activeCount} 项  / 共 ${totalCount} 项`;
+        }
+    }
+
+    // 核心渲染函数 —— 基于 todos 数据完全刷新列表 (安全，无XSS，纯dom操作)
+    function renderTodoList() {
+        // 清空容器，保留占位状态会动态判断
+        todoListContainer.innerHTML = '';
+
+        if (todos.length === 0) {
+            // 显示空状态
+            const emptyLi = document.createElement('li');
+            emptyLi.className = 'empty-placeholder';
+            emptyLi.innerHTML = '<span>✅</span> 所有任务都完成啦！<br>添加新的事项继续努力';
+            todoListContainer.appendChild(emptyLi);
+            updateStats();
+            return;
+        }
+
+        // 按时间倒序? 新添加的显示在上方更符合直觉 (让最新添加靠前)
+        // 为了更好的用户习惯，让未完成的靠前，也可以根据 id 倒序。这里采用未完成在上方, 内部按id降序(新的靠前)
+        const sortedTodos = [...todos].sort((a, b) => {
+            // 未完成的排在前面
+            if (a.completed !== b.completed) {
+                return a.completed ? 1 : -1;
+            }
+            // 同状态下新的在前（id大的通常更新）
+            return b.id - a.id;
+        });
+
+        // 使用文档片段提高性能
+        const fragment = document.createDocumentFragment();
+
+        sortedTodos.forEach(todo => {
+            const li = document.createElement('li');
+            li.className = 'todo-item';
+            if (todo.completed) {
+                li.classList.add('completed');
+            }
+            // 自定义属性存储 id 方便事件委托定位
+            li.setAttribute('data-todo-id', todo.id);
+
+            // 复选框
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.className = 'todo-checkbox';
+            checkbox.checked = todo.completed;
+            checkbox.setAttribute('data-id', todo.id);
+
+            // 文本容器
+            const textSpan = document.createElement('span');
+            textSpan.className = 'todo-text';
+            textSpan.textContent = todo.text;  // 安全文本，防XSS
+            textSpan.setAttribute('data-id', todo.id);
+
+            // 操作按钮组
+            const actionDiv = document.createElement('div');
+            actionDiv.className = 'action-buttons';
+
+            // 编辑按钮(✏️)
+            const editBtn = document.createElement('button');
+            editBtn.className = 'edit-btn';
+            editBtn.innerHTML = '✏️';
+            editBtn.setAttribute('data-id', todo.id);
+            editBtn.title = '编辑事项';
+
+            // 删除按钮(🗑️)
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'delete-btn';
+            deleteBtn.innerHTML = '🗑️';
+            deleteBtn.setAttribute('data-id', todo.id);
+            deleteBtn.title = '删除事项';
+
+            actionDiv.appendChild(editBtn);
+            actionDiv.appendChild(deleteBtn);
+
+            li.appendChild(checkbox);
+            li.appendChild(textSpan);
+            li.appendChild(actionDiv);
+
+            fragment.appendChild(li);
+        });
+
+        todoListContainer.appendChild(fragment);
+        updateStats();
+    }
+
+    // 辅助函数：添加新待办
+    function addNewTodo() {
+        let rawText = todoInput.value;
+        if (!rawText || rawText.trim() === '') {
+            // 轻提示样式（非侵入式）
+            const originalPlaceholder = todoInput.placeholder;
+            todoInput.placeholder = '⚠️ 请输入待办内容！';
+            todoInput.style.backgroundColor = '#fff5f5';
+            setTimeout(() => {
+                todoInput.placeholder = originalPlaceholder;
+                todoInput.style.backgroundColor = '';
+            }, 1000);
+            return;
+        }
+
+        const text = rawText.trim();
+        // 避免重复内容过多无限制，但无需限制
+        const newTodo = {
+            id: Date.now(),
+            text: text,
+            completed: false
+        };
+        todos.push(newTodo);
+        saveTodosToStorage();
+        renderTodoList();
+        // 清空输入框并保持焦点
+        todoInput.value = '';
+        todoInput.focus();
+    }
+
+    // 切换完成状态 (通过 id)
+    function toggleComplete(todoId) {
+        const todo = todos.find(t => t.id == todoId);  // 弱比较支持字符串数字
+        if (todo) {
+            todo.completed = !todo.completed;
+            saveTodosToStorage();
+            renderTodoList();
+        }
+    }
+
+    // 删除待办
+    function deleteTodoById(todoId) {
+        const newTodos = todos.filter(t => t.id != todoId);
+        if (newTodos.length === todos.length) return;
+        todos = newTodos;
+        saveTodosToStorage();
+        renderTodoList();
+    }
+
+    // 编辑待办 (通过id, 弹出简洁修改框)
+    function editTodoById(todoId) {
+        const todo = todos.find(t => t.id == todoId);
+        if (!todo) return;
+
+        // 弹出修改窗口，现代且友好
+        let newText = prompt('编辑待办事项', todo.text);
+        if (newText !== null) {
+            const trimmed = newText.trim();
+            if (trimmed === '') {
+                // 如果用户清空内容，提示后不做修改
+                alert('事项内容不能为空，修改未生效');
+                return;
+            }
+            todo.text = trimmed;
+            saveTodosToStorage();
+            renderTodoList();
+        }
+    }
+
+    // 清除已完成事项
+    function clearCompletedTasks() {
+        const hasCompleted = todos.some(t => t.completed === true);
+        if (!hasCompleted) {
+            // 没有已完成的任务，简单提示（可忽略）
+            const msgHint = document.createElement('div');
+            msgHint.textContent = '✨ 当前没有已完成的任务';
+            msgHint.style.position = 'fixed';
+            msgHint.style.bottom = '20px';
+            msgHint.style.left = '50%';
+            msgHint.style.transform = 'translateX(-50%)';
+            msgHint.style.backgroundColor = '#2c5a7a';
+            msgHint.style.color = 'white';
+            msgHint.style.padding = '8px 20px';
+            msgHint.style.borderRadius = '60px';
+            msgHint.style.fontSize = '0.8rem';
+            msgHint.style.zIndex = '999';
+            msgHint.style.opacity = '0.9';
+            document.body.appendChild(msgHint);
+            setTimeout(() => msgHint.remove(), 1500);
+            return;
+        }
+        todos = todos.filter(todo => !todo.completed);
+        saveTodosToStorage();
+        renderTodoList();
+    }
+
+    // 全局事件委托 (监听 ul 上的交互与动态生成的子元素)
+    function attachDelegation() {
+        // 事件: 复选框改变 (change)
+        todoListContainer.addEventListener('change', (e) => {
+            const target = e.target;
+            if (target.classList && target.classList.contains('todo-checkbox')) {
+                const id = target.getAttribute('data-id');
+                if (id) {
+                    e.stopPropagation();
+                    toggleComplete(id);
+                }
+            }
+        });
+
+        // 事件: 点击编辑按钮或者删除按钮 (click 委托)
+        todoListContainer.addEventListener('click', (e) => {
+            const target = e.target;
+            // 编辑按钮
+            if (target.classList && target.classList.contains('edit-btn')) {
+                const id = target.getAttribute('data-id');
+                if (id) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    editTodoById(id);
+                }
+            }
+            // 删除按钮
+            else if (target.classList && target.classList.contains('delete-btn')) {
+                const id = target.getAttribute('data-id');
+                if (id) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    deleteTodoById(id);
+                }
+            }
+        });
+
+        // 防止双击文本意外触发其他，但不需要额外逻辑 (已经全面支持按钮操作)
+        // 可选：也为文本区域增加双击编辑的快捷操作? 尽管已经有编辑按钮，但为了顺手，加双击待办文本编辑
+        todoListContainer.addEventListener('dblclick', (e) => {
+            // 双击到 .todo-text 或者它内部（span区域）
+            let textSpan = e.target.closest('.todo-text');
+            if (textSpan && textSpan.classList.contains('todo-text')) {
+                const id = textSpan.getAttribute('data-id');
+                if (id) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    editTodoById(id);
+                }
+            } else {
+                // 如果双击空白区域不做任何处理，保持优雅
+                const itemLi = e.target.closest('.todo-item');
+                if (itemLi && !e.target.closest('.edit-btn') && !e.target.closest('.delete-btn')) {
+                    const id = itemLi.getAttribute('data-todo-id');
+                    if (id) editTodoById(id);
+                }
+            }
+        });
+    }
+
+    // 监听回车添加事宜
+    function bindEnterKey() {
+        todoInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                addNewTodo();
+            }
+        });
+    }
+
+    // 添加按钮点击事件
+    addBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        addNewTodo();
+    });
+
+    // 清除已完成
+    clearCompletedBtn.addEventListener('click', () => {
+        clearCompletedTasks();
+    });
+
+    // 页面初始化
+    function initApp() {
+        loadTodosFromStorage();
+        renderTodoList();
+        attachDelegation();
+        bindEnterKey();
+        // 自动聚焦输入框
+        todoInput.focus();
+    }
+
+    // 启动应用
+    initApp();
+</script>
+</body>
+</html>
