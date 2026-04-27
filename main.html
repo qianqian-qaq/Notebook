@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>待办事项 | 撤销·快捷键·拖拽排序</title>
-    <!-- SortableJS 用于拖拽排序 -->
+    <title>待办事项 | 撤销/重做已修复</title>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
     <style>
         * {
@@ -13,7 +12,6 @@
             box-sizing: border-box;
             font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
         }
-
         body {
             background: linear-gradient(145deg, #f0f4fa 0%, #e6edf4 100%);
             min-height: 100vh;
@@ -22,7 +20,6 @@
             align-items: center;
             padding: 20px;
         }
-
         .todo-app {
             max-width: 850px;
             width: 100%;
@@ -31,13 +28,11 @@
             box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.2);
             overflow: hidden;
         }
-
         .app-header {
             background: #ffffff;
             padding: 28px 28px 16px 28px;
             border-bottom: 1px solid #eef2f8;
         }
-
         .app-header h1 {
             font-size: 1.85rem;
             font-weight: 600;
@@ -49,13 +44,11 @@
             align-items: center;
             gap: 10px;
         }
-
         .app-header h1::before {
             content: "✓✓";
             font-size: 1.7rem;
             color: #2c7da0;
         }
-
         .sub {
             color: #5b6e8c;
             font-size: 0.85rem;
@@ -63,12 +56,10 @@
             border-left: 3px solid #7f8fa6;
             padding-left: 12px;
         }
-
         .input-section {
             padding: 20px 28px 12px 28px;
             background: #ffffff;
         }
-
         .input-group {
             display: flex;
             gap: 12px;
@@ -79,12 +70,10 @@
             border: 1px solid #e2e9f2;
             transition: all 0.2s;
         }
-
         .input-group:focus-within {
             border-color: #7f9fbf;
             box-shadow: 0 0 0 3px rgba(44, 78, 110, 0.1);
         }
-
         #todoInput {
             flex: 1;
             border: none;
@@ -93,7 +82,6 @@
             font-size: 1rem;
             outline: none;
         }
-
         .add-btn {
             background: #2c7da0;
             border: none;
@@ -104,13 +92,10 @@
             cursor: pointer;
             transition: 0.2s;
         }
-
         .add-btn:hover {
             background: #1f5e7a;
             transform: scale(0.97);
         }
-
-        /* 搜索与筛选栏 */
         .search-filter-bar {
             padding: 12px 28px;
             background: #ffffff;
@@ -121,7 +106,6 @@
             align-items: center;
             justify-content: space-between;
         }
-
         .search-box {
             flex: 2;
             min-width: 150px;
@@ -133,20 +117,17 @@
             align-items: center;
             gap: 8px;
         }
-
         .search-box input {
             flex: 1;
             border: none;
             background: transparent;
             outline: none;
         }
-
         .filter-buttons {
             display: flex;
             gap: 8px;
             flex-wrap: wrap;
         }
-
         .filter-btn {
             background: #f0f2f5;
             border: none;
@@ -156,12 +137,10 @@
             cursor: pointer;
             transition: 0.2s;
         }
-
         .filter-btn.active {
             background: #2c7da0;
             color: white;
         }
-
         .stats-bar {
             display: flex;
             justify-content: space-between;
@@ -171,7 +150,6 @@
             border-bottom: 1px solid #eef2f8;
             flex-wrap: wrap;
         }
-
         .counter {
             background: #eef3fc;
             padding: 6px 14px;
@@ -179,12 +157,10 @@
             font-size: 0.8rem;
             font-weight: 500;
         }
-
         .action-buttons-group {
             display: flex;
             gap: 8px;
         }
-
         .clear-completed, .reset-btn {
             background: none;
             border: none;
@@ -195,7 +171,6 @@
             border-radius: 40px;
             transition: 0.2s;
         }
-
         .clear-completed {
             color: #d45a6e;
             background: #fff5f6;
@@ -210,12 +185,10 @@
         .reset-btn:hover {
             background: #e5e2f0;
         }
-
         .todo-list-container {
             padding: 6px 16px 24px 16px;
             background: #ffffff;
         }
-
         .todo-list {
             list-style: none;
             display: flex;
@@ -225,7 +198,6 @@
             overflow-y: auto;
             padding-right: 8px;
         }
-
         .todo-list::-webkit-scrollbar {
             width: 6px;
         }
@@ -237,7 +209,6 @@
             background: #bdd4e8;
             border-radius: 8px;
         }
-
         .todo-item {
             background: #fefefe;
             border-radius: 24px;
@@ -252,7 +223,6 @@
         .todo-item:active {
             cursor: grabbing;
         }
-
         .todo-checkbox {
             width: 22px;
             height: 22px;
@@ -260,7 +230,6 @@
             accent-color: #2c7da0;
             flex-shrink: 0;
         }
-
         .todo-text {
             flex: 1;
             font-size: 1rem;
@@ -268,7 +237,6 @@
             color: #1f3b4c;
             word-break: break-word;
         }
-
         .inline-input {
             flex: 1;
             font-size: 1rem;
@@ -278,18 +246,15 @@
             outline: none;
             background: white;
         }
-
         .completed .todo-text {
             text-decoration: line-through;
             color: #91a9c2;
         }
-
         .action-buttons {
             display: flex;
             gap: 8px;
             flex-shrink: 0;
         }
-
         .edit-btn, .delete-btn {
             background: transparent;
             border: none;
@@ -303,7 +268,6 @@
         .edit-btn:hover { background: #e9f0f8; }
         .delete-btn { color: #c97b8a; }
         .delete-btn:hover { background: #fee9ec; }
-
         .empty-placeholder {
             text-align: center;
             padding: 48px 20px;
@@ -317,7 +281,6 @@
             display: block;
             margin-bottom: 12px;
         }
-
         footer {
             background: #fafcff;
             padding: 14px 28px;
@@ -351,16 +314,14 @@
 <div class="todo-app">
     <div class="app-header">
         <h1>代办事宜</h1>
-        <div class="sub">撤销(Ctrl+Z) · 拖拽排序 · 智能筛选</div>
+        <div class="sub">撤销(Ctrl+Z) · 重做(Ctrl+Shift+Z) · 拖拽排序</div>
     </div>
-
     <div class="input-section">
         <div class="input-group">
             <input type="text" id="todoInput" placeholder="写一个待办事项..." autocomplete="off">
             <button class="add-btn" id="addTodoBtn">➕ 添加</button>
         </div>
     </div>
-
     <div class="search-filter-bar">
         <div class="search-box">
             🔍 <input type="text" id="searchInput" placeholder="搜索事项...">
@@ -371,7 +332,6 @@
             <button class="filter-btn" data-filter="completed">已完成</button>
         </div>
     </div>
-
     <div class="stats-bar">
         <div class="counter" id="taskCounter">📋 0 项待办</div>
         <div class="action-buttons-group">
@@ -379,31 +339,29 @@
             <button class="reset-btn" id="resetBtn">🔄 初始化</button>
         </div>
     </div>
-
     <div class="todo-list-container">
         <ul class="todo-list" id="todoList">
             <li class="empty-placeholder"><span>📌</span> 暂无待办事项</li>
         </ul>
     </div>
-    <footer>💾 数据自动保存 | 支持拖拽排序 | Ctrl+Z 撤销 / Ctrl+Shift+Z 重做</footer>
+    <footer>💾 数据自动保存 | 拖拽调整顺序 | Ctrl+Z 撤销 / Ctrl+Shift+Z 或 Ctrl+Y 重做</footer>
 </div>
 <div id="toastMsg" class="toast-msg"></div>
 
 <script>
     // ---------- 数据与存储 ----------
     let todos = [];
-    const STORAGE_KEY = 'todo_app_advanced';
-
-    // 历史记录 (撤销/重做)
-    let historyStack = [];     // 存储 todos 快照
-    let historyIndex = -1;
+    const STORAGE_KEY = 'todo_app_fixed_undo';
     const MAX_HISTORY = 50;
 
-    // 当前筛选和搜索状态
-    let currentFilter = 'all';   // 'all', 'active', 'completed'
+    // 双栈历史
+    let undoStack = [];
+    let redoStack = [];
+
+    let currentFilter = 'all';
     let searchKeyword = '';
 
-    // DOM 元素
+    // DOM
     const todoInput = document.getElementById('todoInput');
     const addBtn = document.getElementById('addTodoBtn');
     const todoListContainer = document.getElementById('todoList');
@@ -413,74 +371,65 @@
     const searchInput = document.getElementById('searchInput');
     const filterBtns = document.querySelectorAll('.filter-btn');
 
-    // 辅助函数: 显示短暂提示
     function showToast(msg, duration = 1500) {
         const toast = document.getElementById('toastMsg');
         toast.textContent = msg;
         toast.style.opacity = '0.9';
-        setTimeout(() => {
-            toast.style.opacity = '0';
-        }, duration);
+        setTimeout(() => { toast.style.opacity = '0'; }, duration);
     }
 
-    // 保存快照到历史 (在每次修改数据前调用)
-    function pushToHistory() {
+    // 保存当前状态到撤销栈（操作前调用）
+    function pushToUndo() {
         const snapshot = JSON.parse(JSON.stringify(todos));
-        // 如果当前指针不在末尾，则截断后面的历史
-        if (historyIndex < historyStack.length - 1) {
-            historyStack = historyStack.slice(0, historyIndex + 1);
-        }
-        historyStack.push(snapshot);
-        if (historyStack.length > MAX_HISTORY) {
-            historyStack.shift();
-        } else {
-            historyIndex = historyStack.length - 1;
-        }
+        undoStack.push(snapshot);
+        if (undoStack.length > MAX_HISTORY) undoStack.shift();
+        // 新操作清空重做栈
+        redoStack = [];
     }
 
-    // 撤销: 回到上一个状态
     function undo() {
-        if (historyIndex > 0) {
-            historyIndex--;
-            todos = JSON.parse(JSON.stringify(historyStack[historyIndex]));
-            saveTodosToStorage();
-            renderFilteredList();
-            showToast('↩️ 已撤销');
-        } else {
+        if (undoStack.length === 0) {
             showToast('⚠️ 没有更早的操作');
+            return;
         }
-    }
-
-    // 重做: 前进到下一个状态
-    function redo() {
-        if (historyIndex < historyStack.length - 1) {
-            historyIndex++;
-            todos = JSON.parse(JSON.stringify(historyStack[historyIndex]));
-            saveTodosToStorage();
-            renderFilteredList();
-            showToast('↪️ 已重做');
-        } else {
-            showToast('⚠️ 没有可重做的操作');
-        }
-    }
-
-    // 通用的修改包装: 执行修改操作并记录历史
-    function performAction(actionFn, actionName) {
-        pushToHistory();
-        actionFn();
+        // 保存当前状态到重做栈
+        redoStack.push(JSON.parse(JSON.stringify(todos)));
+        // 恢复撤销栈顶状态
+        todos = JSON.parse(JSON.stringify(undoStack.pop()));
         saveTodosToStorage();
-        renderFilteredList();
+        renderAndUpdateSortable();
+        showToast('↩️ 已撤销');
+    }
+
+    function redo() {
+        if (redoStack.length === 0) {
+            showToast('⚠️ 没有可重做的操作');
+            return;
+        }
+        // 保存当前状态到撤销栈
+        undoStack.push(JSON.parse(JSON.stringify(todos)));
+        // 恢复重做栈顶状态
+        todos = JSON.parse(JSON.stringify(redoStack.pop()));
+        saveTodosToStorage();
+        renderAndUpdateSortable();
+        showToast('↪️ 已重做');
+    }
+
+    function performAction(actionFn, actionName) {
+        pushToUndo();          // 记录操作前的状态
+        actionFn();            // 执行操作（会直接修改 todos）
+        saveTodosToStorage();
+        renderAndUpdateSortable();
         showToast(`✅ ${actionName}`);
     }
 
-    // 获取默认示例数据
     function getDefaultTodos() {
         const now = Date.now();
         return [
             { id: now + 1, text: '点击 ✔️ 标记完成', completed: false },
             { id: now + 2, text: '双击或点击 ✏️ 行内编辑', completed: false },
             { id: now + 3, text: '拖拽排序试试 ✨', completed: true },
-            { id: now + 4, text: 'Ctrl+Z 撤销操作', completed: false }
+            { id: now + 4, text: 'Ctrl+Z 撤销 / Ctrl+Shift+Z 重做', completed: false }
         ];
     }
 
@@ -504,7 +453,6 @@
         } else {
             todos = getDefaultTodos();
         }
-        // 去重
         const idSet = new Set();
         todos = todos.filter(t => {
             if (idSet.has(t.id)) return false;
@@ -515,75 +463,39 @@
 
     function saveTodosToStorage() {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(todos));
-        // 保存后同步到历史堆栈顶部（但避免重复快照，仅当当前状态不在历史末尾时）
-        const currentSnapshot = JSON.parse(JSON.stringify(todos));
-        if (historyStack[historyIndex] !== currentSnapshot) {
-            // 如果是通过普通操作修改，已经在 performAction 中 push，这里不做额外处理避免重复
-        }
     }
 
-    // 初始化历史: 清空并记录当前状态
-    function initHistory() {
-        historyStack = [];
-        historyIndex = -1;
-        pushToHistory();  // 保存初始状态
-    }
-
-    // 渲染核心: 根据当前 filter 和 searchKeyword 过滤 todos，并渲染到列表 (支持拖拽后更新)
     function getFilteredTodos() {
         let filtered = [...todos];
         if (searchKeyword.trim() !== '') {
             const kw = searchKeyword.trim().toLowerCase();
             filtered = filtered.filter(t => t.text.toLowerCase().includes(kw));
         }
-        if (currentFilter === 'active') {
-            filtered = filtered.filter(t => !t.completed);
-        } else if (currentFilter === 'completed') {
-            filtered = filtered.filter(t => t.completed);
-        }
+        if (currentFilter === 'active') return filtered.filter(t => !t.completed);
+        if (currentFilter === 'completed') return filtered.filter(t => t.completed);
         return filtered;
     }
 
-    // 渲染列表 (基于过滤后的数据)
-    function renderFilteredList() {
-        const filtered = getFilteredTodos();
-        todoListContainer.innerHTML = '';
-        if (filtered.length === 0) {
-            const emptyLi = document.createElement('li');
-            emptyLi.className = 'empty-placeholder';
-            emptyLi.innerHTML = '<span>📭</span> 没有符合条件的事项';
-            todoListContainer.appendChild(emptyLi);
-            updateStats();
-            return;
-        }
-
-        const fragment = document.createDocumentFragment();
-        filtered.forEach(todo => {
-            const li = createTodoItemElement(todo);
-            fragment.appendChild(li);
-        });
-        todoListContainer.appendChild(fragment);
-        updateStats();
+    function updateStats() {
+        const activeCount = todos.filter(t => !t.completed).length;
+        const totalCount = todos.length;
+        taskCounterSpan.innerHTML = `📋 待办 ${activeCount} 项 / 共 ${totalCount} 项`;
     }
 
-    // 创建单个 todo DOM 元素 (用于渲染)
     function createTodoItemElement(todo) {
         const li = document.createElement('li');
         li.className = 'todo-item';
         if (todo.completed) li.classList.add('completed');
         li.setAttribute('data-id', todo.id);
-
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
         checkbox.className = 'todo-checkbox';
         checkbox.checked = todo.completed;
         checkbox.setAttribute('data-id', todo.id);
-
         const textSpan = document.createElement('span');
         textSpan.className = 'todo-text';
         textSpan.textContent = todo.text;
         textSpan.setAttribute('data-id', todo.id);
-
         const actionDiv = document.createElement('div');
         actionDiv.className = 'action-buttons';
         const editBtn = document.createElement('button');
@@ -596,99 +508,71 @@
         deleteBtn.setAttribute('data-id', todo.id);
         actionDiv.appendChild(editBtn);
         actionDiv.appendChild(deleteBtn);
-
         li.appendChild(checkbox);
         li.appendChild(textSpan);
         li.appendChild(actionDiv);
         return li;
     }
 
-    // 更新统计（基于原始 todos，不受筛选影响）
-    function updateStats() {
-        const activeCount = todos.filter(t => !t.completed).length;
-        const totalCount = todos.length;
-        taskCounterSpan.innerHTML = `📋 待办 ${activeCount} 项 / 共 ${totalCount} 项`;
+    function renderFilteredList() {
+        const filtered = getFilteredTodos();
+        todoListContainer.innerHTML = '';
+        if (filtered.length === 0) {
+            const emptyLi = document.createElement('li');
+            emptyLi.className = 'empty-placeholder';
+            emptyLi.innerHTML = '<span>📭</span> 没有符合条件的事项';
+            todoListContainer.appendChild(emptyLi);
+            updateStats();
+            return;
+        }
+        const fragment = document.createDocumentFragment();
+        filtered.forEach(todo => fragment.appendChild(createTodoItemElement(todo)));
+        todoListContainer.appendChild(fragment);
+        updateStats();
     }
 
-    // 具体的业务操作 (无历史记录包装)
+    // 业务操作
     function _addNewTodo() {
-        let raw = todoInput.value.trim();
-        if (!raw) {
-            showToast('请输入内容');
-            return false;
-        }
-        const newTodo = {
-            id: Date.now(),
-            text: raw,
-            completed: false
-        };
-        todos.push(newTodo);
+        const raw = todoInput.value.trim();
+        if (!raw) { showToast('请输入内容'); return false; }
+        todos.push({ id: Date.now(), text: raw, completed: false });
         todoInput.value = '';
         return true;
     }
+    function _deleteTodoById(id) { const idx = todos.findIndex(t => t.id == id); if (idx !== -1) todos.splice(idx, 1); }
+    function _toggleComplete(id) { const todo = todos.find(t => t.id == id); if (todo) todo.completed = !todo.completed; }
+    function _editTodoText(id, newText) { const todo = todos.find(t => t.id == id); if (todo) todo.text = newText; }
+    function _clearCompleted() { todos = todos.filter(t => !t.completed); }
+    function _resetToInitial() { todos = getDefaultTodos(); const now = Date.now(); todos = todos.map((t, idx) => ({ ...t, id: now + idx + 1 })); }
 
-    function _deleteTodoById(id) {
-        const index = todos.findIndex(t => t.id == id);
-        if (index !== -1) todos.splice(index, 1);
-    }
-
-    function _toggleComplete(id) {
-        const todo = todos.find(t => t.id == id);
-        if (todo) todo.completed = !todo.completed;
-    }
-
-    function _editTodoText(id, newText) {
-        const todo = todos.find(t => t.id == id);
-        if (todo) todo.text = newText;
-    }
-
-    function _clearCompleted() {
-        todos = todos.filter(t => !t.completed);
-    }
-
-    function _resetToInitial() {
-        todos = getDefaultTodos();
-        // 重新生成唯一 id 避免冲突
-        const now = Date.now();
-        todos = todos.map((t, idx) => ({ ...t, id: now + idx + 1 }));
-    }
-
-    // 对外调用的封装（带历史）
     function addTodo() { performAction(() => _addNewTodo(), '添加事项'); }
     function deleteTodo(id) { performAction(() => _deleteTodoById(id), '删除事项'); }
     function toggleComplete(id) { performAction(() => _toggleComplete(id), '切换状态'); }
-    function editTodo(id, newText) { 
-        if (!newText.trim()) return;
-        performAction(() => _editTodoText(id, newText.trim()), '编辑事项');
-    }
+    function editTodo(id, newText) { if (!newText.trim()) return; performAction(() => _editTodoText(id, newText.trim()), '编辑事项'); }
     function clearCompleted() { performAction(() => _clearCompleted(), '清除已完成'); }
     function resetToInitial() { performAction(() => _resetToInitial(), '初始化'); }
 
-    // 行内编辑逻辑 (使用事件委托)
+    // 行内编辑
     let activeEditElement = null;
     function startInlineEdit(todoId, textElement) {
         if (activeEditElement) return;
         const todo = todos.find(t => t.id == todoId);
         if (!todo) return;
-        const originalText = todo.text;
         const input = document.createElement('input');
         input.type = 'text';
         input.className = 'inline-input';
-        input.value = originalText;
+        input.value = todo.text;
         textElement.style.display = 'none';
         textElement.parentNode.insertBefore(input, textElement);
         input.focus();
         input.select();
-
         function save() {
             const newVal = input.value.trim();
-            if (newVal && newVal !== originalText) {
-                editTodo(todoId, newVal);
-            }
+            if (newVal && newVal !== todo.text) editTodo(todoId, newVal);
             input.remove();
             textElement.style.display = '';
             activeEditElement = null;
-            renderFilteredList(); // 重新渲染以刷新文本
+            renderAndUpdateSortable();
         }
         function cancel() {
             input.remove();
@@ -696,30 +580,18 @@
             activeEditElement = null;
         }
         input.addEventListener('blur', save);
-        input.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                save();
-            }
-        });
-        input.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                cancel();
-            }
-        });
+        input.addEventListener('keypress', (e) => { if (e.key === 'Enter') { e.preventDefault(); save(); } });
+        input.addEventListener('keydown', (e) => { if (e.key === 'Escape') cancel(); });
         activeEditElement = input;
     }
 
-    // 全局事件委托 (处理复选框、编辑删除按钮、双击编辑)
     function attachDelegation() {
         todoListContainer.addEventListener('change', (e) => {
-            const target = e.target;
-            if (target.classList.contains('todo-checkbox')) {
-                const id = target.getAttribute('data-id');
+            if (e.target.classList.contains('todo-checkbox')) {
+                const id = e.target.getAttribute('data-id');
                 if (id) toggleComplete(id);
             }
         });
-
         todoListContainer.addEventListener('click', (e) => {
             const target = e.target;
             if (target.classList.contains('edit-btn')) {
@@ -736,7 +608,6 @@
                 e.stopPropagation();
             }
         });
-
         todoListContainer.addEventListener('dblclick', (e) => {
             const textSpan = e.target.closest('.todo-text');
             if (textSpan) {
@@ -748,7 +619,6 @@
         });
     }
 
-    // 拖拽排序初始化 (使用 Sortable)
     let sortableInstance = null;
     function initSortable() {
         if (sortableInstance) sortableInstance.destroy();
@@ -756,23 +626,14 @@
         sortableInstance = new Sortable(listEl, {
             animation: 200,
             handle: '.todo-item',
-            ghostClass: 'sortable-ghost',
-            onEnd: function(evt) {
-                // 拖拽结束后，根据显示的列表顺序重新排列原始 todos
+            onEnd: function() {
                 const filteredIds = Array.from(listEl.querySelectorAll('.todo-item')).map(li => parseInt(li.getAttribute('data-id')));
-                // 获取当前过滤后的完整列表
                 const filteredTodos = getFilteredTodos();
-                // 验证顺序是否变化
                 let changed = false;
                 for (let i = 0; i < filteredIds.length; i++) {
-                    if (filteredTodos[i] && filteredTodos[i].id !== filteredIds[i]) {
-                        changed = true;
-                        break;
-                    }
+                    if (filteredTodos[i] && filteredTodos[i].id !== filteredIds[i]) { changed = true; break; }
                 }
                 if (!changed) return;
-                // 重新构建 todos：保持未在过滤列表中的项目位置不变，仅重新排序过滤后的项目
-                // 更稳健的方式：提取出现在过滤列表中的 todo，按新顺序排列，然后合并回原数组
                 const filteredSet = new Set(filteredIds);
                 const notFiltered = todos.filter(t => !filteredSet.has(t.id));
                 const orderedFiltered = [];
@@ -781,24 +642,20 @@
                     if (found) orderedFiltered.push(found);
                 }
                 todos = [...orderedFiltered, ...notFiltered];
-                // 记录历史
-                pushToHistory();
+                pushToUndo();  // 拖拽排序也记录历史
                 saveTodosToStorage();
-                renderFilteredList();
+                renderAndUpdateSortable();
                 showToast('📌 顺序已保存');
             }
         });
     }
 
-    // 渲染并保持拖拽功能
     function renderAndUpdateSortable() {
         renderFilteredList();
-        // 重新初始化 Sortable (因为 DOM 变了)
         if (sortableInstance) sortableInstance.destroy();
         initSortable();
     }
 
-    // 筛选与搜索事件绑定
     function bindFilters() {
         searchInput.addEventListener('input', (e) => {
             searchKeyword = e.target.value;
@@ -814,15 +671,12 @@
         });
     }
 
-    // 快捷键绑定
     function bindShortcuts() {
         window.addEventListener('keydown', (e) => {
-            // Ctrl+Z
             if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
                 e.preventDefault();
                 undo();
             }
-            // Ctrl+Shift+Z 或 Ctrl+Y
             if ((e.ctrlKey || e.metaKey) && ((e.key === 'z' && e.shiftKey) || e.key === 'y')) {
                 e.preventDefault();
                 redo();
@@ -830,21 +684,18 @@
         });
     }
 
-    // 初始化
     function initApp() {
         loadTodosFromStorage();
-        initHistory();
+        undoStack = [];
+        redoStack = [];
         attachDelegation();
         bindFilters();
         bindShortcuts();
         renderAndUpdateSortable();
-        // 绑定按钮事件
         addBtn.addEventListener('click', () => addTodo());
         clearCompletedBtn.addEventListener('click', () => clearCompleted());
         resetBtn.addEventListener('click', () => resetToInitial());
-        todoInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') addTodo();
-        });
+        todoInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') addTodo(); });
     }
 
     initApp();
